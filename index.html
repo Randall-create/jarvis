@@ -116,7 +116,7 @@
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer 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'
+            'Authorization': 'Bearer sk-zB829rGSajdkTFVLaLpcGkE5ag0aUt5vLvfFbm7U3AJZZ-DFEHwuiOMZ2ie4KCF0pxuLCbnGgpT3BlbkFJiAprormPVFJcVRn040CJDlAhxk135qvPcNHTuq5ALpDkWJxxVqaYRMlN7kT852iVF_yfEUSXYA'
           },
           body: JSON.stringify({
             model: 'gpt-4',
@@ -128,7 +128,12 @@
         });
 
         const data = await res.json();
-        const reply = data.choices?.[0]?.message?.content || 'Respuesta vacía.';
+        let reply = 'Respuesta vacía.';
+if (data.choices && data.choices[0]) {
+  reply = data.choices[0].message.content;
+} else if (data.error) {
+  reply = `Error: ${data.error.message}`;
+}
         addMessage(reply, 'jarvis');
         speak(reply);
       } catch (err) {
