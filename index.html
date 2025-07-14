@@ -112,11 +112,11 @@
       input.value = '';
 
       try {
-        const res = await fetch('https://api.openai.com/v1/chat/completions', {
+        const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer sk-zB829rGSajdkTFVLaLpcGkE5ag0aUt5vLvfFbm7U3AJZZ-DFEHwuiOMZ2ie4KCF0pxuLCbnGgpT3BlbkFJiAprormPVFJcVRn040CJDlAhxk135qvPcNHTuq5ALpDkWJxxVqaYRMlN7kT852iVF_yfEUSXYA'
+            'Authorization': 'Bearer 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'
           },
           body: JSON.stringify({
             model: 'gpt-4',
@@ -128,12 +128,7 @@
         });
 
         const data = await res.json();
-        let reply = 'Respuesta vacía.';
-if (data.choices && data.choices[0]) {
-  reply = data.choices[0].message.content;
-} else if (data.error) {
-  reply = `Error: ${data.error.message}`;
-}
+        const reply = data.choices?.[0]?.message?.content || 'Respuesta vacía.';
         addMessage(reply, 'jarvis');
         speak(reply);
       } catch (err) {
