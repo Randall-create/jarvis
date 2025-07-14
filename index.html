@@ -1,12 +1,10 @@
-<!DOCTYPE html>
-<html lang="es">
+<!DOCTYPE html><html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>J.A.R.V.I.S. Web Panel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>J.A.R.V.I.S. Web Assistant</title>
   <style>
     body {
-      margin: 0;
       background: #0a0a0a;
       color: #00ffe0;
       font-family: 'Segoe UI', sans-serif;
@@ -15,47 +13,109 @@
       align-items: center;
       justify-content: center;
       height: 100vh;
+      margin: 0;
       text-align: center;
     }
-
     h1 {
-      font-size: 3rem;
-      margin-bottom: 0.5rem;
+      font-size: 2.5rem;
     }
-
-    p {
-      font-size: 1.3rem;
-      margin-bottom: 2rem;
-    }
-
     .status {
-      display: flex;
-      align-items: center;
+      margin-bottom: 20px;
+    }
+    #response {
+      margin-top: 20px;
       font-size: 1.2rem;
+      max-width: 80%;
     }
-
-    .dot {
-      width: 12px;
-      height: 12px;
-      margin-right: 8px;
-      border-radius: 50%;
+    .input-container {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    input, button {
+      padding: 10px;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: none;
+    }
+    input {
+      flex: 1;
+    }
+    #voiceBtn {
       background-color: #00ff99;
-      animation: pulse 1.2s infinite;
+      color: black;
+      cursor: pointer;
     }
-
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); opacity: 0.7; }
-      50% { transform: scale(1.5); opacity: 1; }
+    #sendBtn {
+      background-color: #005050;
+      color: white;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
   <h1>Sistema J.A.R.V.I.S.</h1>
-  <p>Asistente Virtual de Randall en operación.</p>
+  <p class="status">Modo: <span id="mode">Texto</span></p>  <div class="input-container">
+    <input type="text" id="userInput" placeholder="Escriba su comando..." />
+    <button id="sendBtn">Enviar</button>
+    <button id="voiceBtn">🎤 Voz</button>
+  </div>  <div id="response">Esperando su orden, señor Randall...</div>  <script>
+    const input = document.getElementById('userInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const voiceBtn = document.getElementById('voiceBtn');
+    const responseDiv = document.getElementById('response');
+    const modeSpan = document.getElementById('mode');
+    let mode = 'texto';
 
-  <div class="status">
-    <div class="dot"></div>
-    <span>Estado: En línea</span>
-  </div>
-</body>
-</html>
+    // Enviar mensaje en modo texto
+    async function sendMessage() {
+      const message = input.value;
+      if (!message) return;
+      responseDiv.textContent = 'Procesando...';
+
+      // Conexión con ChatGPT
+      const res = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer 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'
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o',
+          messages: [
+            { role: 'system', content: 'Eres J.A.R.V.I.S., un asistente inteligente para Randall. Hablas de forma formal, eficiente y con un toque de humor sutil. Eres la IA de su sistema personal.' },
+            { role: 'user', content: message }
+          ]
+        })
+      });
+
+      const data = await res.json();
+      const reply = data.choices?.[0]?.message?.content || 'Error en la respuesta.';
+      responseDiv.textContent = reply;
+      input.value = '';
+    }
+
+    sendBtn.onclick = sendMessage;
+    input.onkeydown = e => e.key === 'Enter' && sendMessage();
+
+    // Activar reconocimiento de voz
+    voiceBtn.onclick = () => {
+      if (!('webkitSpeechRecognition' in window)) {
+        alert('Reconocimiento de voz no soportado');
+        return;
+      }
+
+      mode = 'voz';
+      modeSpan.textContent = 'Voz';
+      const recognition = new webkitSpeechRecognition();
+      recognition.lang = 'es-ES';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+
+      recognition.onresult = function (event) {
+        const voiceCommand = event.results[0][0].transcript;
+        input.value = voiceCommand;
+        sendMessage();
+      };
+
+      recognition.onerror = function () {
