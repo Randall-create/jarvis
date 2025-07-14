@@ -3,96 +3,120 @@
  <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>J.A.R.V.I.S. Web Assistant</title>
+  <title>J.A.R.V.I.S. Chat</title>
   <style>
     body {
+      margin: 0;
       background: #0a0a0a;
       color: #00ffe0;
       font-family: 'Segoe UI', sans-serif;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
       height: 100vh;
-      margin: 0;
+    }
+    header {
+      padding: 1rem;
       text-align: center;
+      background-color: #111;
+      font-size: 1.8rem;
+      font-weight: bold;
+      border-bottom: 1px solid #00ffe0;
     }
-    h1 {
-      font-size: 2.5rem;
-    }
-    .status {
-      margin-bottom: 20px;
-    }
-    #response {
-      margin-top: 20px;
-      font-size: 1.2rem;
-      max-width: 80%;
-    }
-    .input-container {
+    #chat {
+      flex: 1;
+      padding: 1rem;
+      overflow-y: auto;
       display: flex;
-      gap: 10px;
-      margin-top: 20px;
-      flex-wrap: wrap;
-      justify-content: center;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .msg {
+      max-width: 80%;
+      padding: 0.8rem 1rem;
+      border-radius: 12px;
+      line-height: 1.4;
+      white-space: pre-wrap;
+    }
+    .user {
+      align-self: flex-end;
+      background-color: #005050;
+      color: white;
+    }
+    .jarvis {
+      align-self: flex-start;
+      background-color: #003333;
+      color: #00ffe0;
+    }
+    #input-area {
+      display: flex;
+      padding: 1rem;
+      background: #111;
+      gap: 0.5rem;
+      border-top: 1px solid #00ffe0;
     }
     input, button {
-      padding: 10px;
       font-size: 1rem;
-      border-radius: 6px;
+      padding: 0.8rem;
       border: none;
+      border-radius: 8px;
     }
     input {
       flex: 1;
-      min-width: 200px;
-    }
-    #voiceBtn {
-      background-color: #00ff99;
-      color: black;
-      cursor: pointer;
     }
     #sendBtn {
       background-color: #005050;
       color: white;
-      cursor: pointer;
+    }
+    #voiceBtn {
+      background-color: #00ff99;
+      color: black;
     }
   </style>
  </head>
  <body>
-  <h1>Sistema J.A.R.V.I.S.</h1>
-  <p class="status">Modo: <span id="mode">Texto</span></p>
-  <div class="input-container">
-   <input type="text" id="userInput" placeholder="Escriba su comando..."> <button id="sendBtn">Enviar</button> <button id="voiceBtn">🎤 Voz</button>
-  </div>
-  <div id="response">
-   Esperando su orden, señor Randall...
+  <header>
+   J.A.R.V.I.S. Asistente de Randall
+  </header>
+  <main id="chat">
+   <div class="msg jarvis">
+    Sistema J.A.R.V.I.S. activado. Esperando su orden, señor Randall...
+   </div>
+  </main>
+  <div id="input-area">
+   <input type="text" id="userInput" placeholder="Escriba su comando..."> <button id="sendBtn">Enviar</button> <button id="voiceBtn">🎤</button>
   </div>
   <script>
+    const chat = document.getElementById('chat');
     const input = document.getElementById('userInput');
     const sendBtn = document.getElementById('sendBtn');
     const voiceBtn = document.getElementById('voiceBtn');
-    const responseDiv = document.getElementById('response');
-    const modeSpan = document.getElementById('mode');
-    let mode = 'texto';
+
+    function addMessage(text, sender) {
+      const msg = document.createElement('div');
+      msg.className = 'msg ' + sender;
+      msg.textContent = text;
+      chat.appendChild(msg);
+      chat.scrollTop = chat.scrollHeight;
+    }
 
     function speak(text) {
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'es-ES';
-      utterance.pitch = 1;
-      utterance.rate = 1;
       speechSynthesis.speak(utterance);
     }
 
     async function sendMessage() {
       const message = input.value.trim();
       if (!message) return;
-      responseDiv.textContent = 'Procesando...';
+      addMessage(message, 'user');
+      input.value = '';
 
       try {
         const res = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer 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'
+            'Authorization': 'Bearer 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'
           },
           body: JSON.stringify({
             model: 'gpt-4',
@@ -105,12 +129,10 @@
 
         const data = await res.json();
         const reply = data.choices?.[0]?.message?.content || 'Respuesta vacía.';
-        responseDiv.textContent = reply;
-        input.value = '';
-
-        if (mode === 'voz') speak(reply);
-      } catch (error) {
-        responseDiv.textContent = 'Error al contactar a OpenAI.';
+        addMessage(reply, 'jarvis');
+        speak(reply);
+      } catch (err) {
+        addMessage('Error al contactar a OpenAI.', 'jarvis');
       }
     }
 
@@ -123,8 +145,6 @@
         return;
       }
 
-      mode = 'voz';
-      modeSpan.textContent = 'Voz';
       speak('Modo de voz activo');
 
       const recognition = new webkitSpeechRecognition();
@@ -139,7 +159,7 @@
       };
 
       recognition.onerror = function () {
-        responseDiv.textContent = 'Error de reconocimiento de voz.';
+        addMessage('Error de reconocimiento de voz.', 'jarvis');
       };
 
       recognition.start();
