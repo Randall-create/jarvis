@@ -1,169 +1,362 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
- <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>J.A.R.V.I.S. Chat</title>
-  <style>
-    body {
-      margin: 0;
-      background: #0a0a0a;
-      color: #00ffe0;
-      font-family: 'Segoe UI', sans-serif;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-    }
-    header {
-      padding: 1rem;
-      text-align: center;
-      background-color: #111;
-      font-size: 1.8rem;
-      font-weight: bold;
-      border-bottom: 1px solid #00ffe0;
-    }
-    #chat {
-      flex: 1;
-      padding: 1rem;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-    .msg {
-      max-width: 80%;
-      padding: 0.8rem 1rem;
-      border-radius: 12px;
-      line-height: 1.4;
-      white-space: pre-wrap;
-    }
-    .user {
-      align-self: flex-end;
-      background-color: #005050;
-      color: white;
-    }
-    .jarvis {
-      align-self: flex-start;
-      background-color: #003333;
-      color: #00ffe0;
-    }
-    #input-area {
-      display: flex;
-      padding: 1rem;
-      background: #111;
-      gap: 0.5rem;
-      border-top: 1px solid #00ffe0;
-    }
-    input, button {
-      font-size: 1rem;
-      padding: 0.8rem;
-      border: none;
-      border-radius: 8px;
-    }
-    input {
-      flex: 1;
-    }
-    #sendBtn {
-      background-color: #005050;
-      color: white;
-    }
-    #voiceBtn {
-      background-color: #00ff99;
-      color: black;
-    }
-  </style>
- </head>
- <body>
-  <header>
-   J.A.R.V.I.S. Asistente de Randall
-  </header>
-  <main id="chat">
-   <div class="msg jarvis">
-    Sistema J.A.R.V.I.S. activado. Esperando su orden, señor Randall...
-   </div>
-  </main>
-  <div id="input-area">
-   <input type="text" id="userInput" placeholder="Escriba su comando..."> <button id="sendBtn">Enviar</button> <button id="voiceBtn">🎤</button>
-  </div>
-  <script>
-    const chat = document.getElementById('chat');
-    const input = document.getElementById('userInput');
-    const sendBtn = document.getElementById('sendBtn');
-    const voiceBtn = document.getElementById('voiceBtn');
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Jarvis Chat Avanzado</title>
+<style>
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #0b0f19;
+    color: #c6c9d1;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    transition: background 0.5s, color 0.5s;
+  }
+  body.light {
+    background: #f0f0f0;
+    color: #222;
+  }
+  header {
+    background: #1c1f2a;
+    padding: 15px;
+    text-align: center;
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #33ff99;
+    letter-spacing: 2px;
+    box-shadow: 0 2px 5px rgba(0,255,153,0.3);
+    user-select: none;
+  }
+  body.light header {
+    background: #33ff99;
+    color: #0b0f19;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  }
+  #chat {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    background: #121521;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    scrollbar-width: thin;
+  }
+  body.light #chat {
+    background: #fff;
+  }
+  .message {
+    max-width: 70%;
+    padding: 12px 18px;
+    border-radius: 20px;
+    line-height: 1.4;
+    font-size: 1rem;
+    white-space: pre-wrap;
+  }
+  .user {
+    background: #33ff99;
+    color: #0b0f19;
+    align-self: flex-end;
+    border-bottom-right-radius: 0;
+    box-shadow: 0 1px 5px rgba(51, 255, 153, 0.4);
+  }
+  .jarvis {
+    background: #22283f;
+    align-self: flex-start;
+    border-bottom-left-radius: 0;
+    box-shadow: 0 1px 5px rgba(0, 255, 153, 0.4);
+  }
+  body.light .user {
+    background: #00cc66;
+    color: #fff;
+  }
+  body.light .jarvis {
+    background: #e1f7d5;
+    color: #222;
+  }
+  #input-area {
+    background: #1c1f2a;
+    display: flex;
+    padding: 10px;
+    box-shadow: 0 -2px 5px rgba(0,255,153,0.3);
+  }
+  body.light #input-area {
+    background: #eee;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+  }
+  #user-input {
+    flex: 1;
+    padding: 12px 18px;
+    font-size: 1rem;
+    border-radius: 25px;
+    border: none;
+    outline: none;
+    background: #22283f;
+    color: #c6c9d1;
+    transition: background 0.3s, color 0.3s;
+  }
+  body.light #user-input {
+    background: #fff;
+    color: #222;
+  }
+  #send-btn, #voice-btn, #mode-btn {
+    margin-left: 10px;
+    background: #33ff99;
+    border: none;
+    padding: 0 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #0b0f19;
+    transition: background 0.3s ease;
+    user-select: none;
+  }
+  #send-btn:hover, #voice-btn:hover, #mode-btn:hover {
+    background: #29cc7a;
+  }
+  #voice-btn {
+    width: 50px;
+    font-size: 1.4rem;
+  }
+  #status {
+    font-size: 0.9rem;
+    text-align: center;
+    color: #33ff99;
+    min-height: 1.5em;
+    user-select: none;
+  }
+  body.light #status {
+    color: #008f44;
+  }
+</style>
+</head>
+<body>
 
-    function addMessage(text, sender) {
-      const msg = document.createElement('div');
-      msg.className = 'msg ' + sender;
-      msg.textContent = text;
-      chat.appendChild(msg);
-      chat.scrollTop = chat.scrollHeight;
+<header>J.A.R.V.I.S. - Asistente Inteligente</header>
+
+<div id="chat" aria-live="polite" aria-atomic="true"></div>
+
+<div id="status"></div>
+
+<div id="input-area">
+  <input id="user-input" type="text" placeholder="Escribe un mensaje para Jarvis..." autocomplete="off" aria-label="Entrada de mensaje" />
+  <button id="send-btn" aria-label="Enviar mensaje">Enviar</button>
+  <button id="voice-btn" aria-label="Activar reconocimiento de voz" title="Hablar">🎤</button>
+  <button id="mode-btn" aria-label="Cambiar modo claro/oscuro" title="Modo Claro/Oscuro">🌙</button>
+</div>
+
+<script>
+  const chat = document.getElementById('chat');
+  const input = document.getElementById('user-input');
+  const sendBtn = document.getElementById('send-btn');
+  const voiceBtn = document.getElementById('voice-btn');
+  const modeBtn = document.getElementById('mode-btn');
+  const status = document.getElementById('status');
+
+  // Local Storage key para historial
+  const STORAGE_KEY = 'jarvis_chat_history';
+
+  // Agregar mensaje al chat
+  function addMessage(text, sender) {
+    const msgDiv = document.createElement('div');
+    msgDiv.classList.add('message', sender);
+    msgDiv.textContent = text;
+    chat.appendChild(msgDiv);
+    chat.scrollTop = chat.scrollHeight;
+
+    // Guardar en historial
+    saveMessage(text, sender);
+  }
+
+  // Guardar mensaje en localStorage
+  function saveMessage(text, sender) {
+    let history = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    history.push({ text, sender, time: Date.now() });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+  }
+
+  // Cargar historial de conversación
+  function loadHistory() {
+    let history = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    chat.innerHTML = '';
+    history.forEach(({ text, sender }) => {
+      const msgDiv = document.createElement('div');
+      msgDiv.classList.add('message', sender);
+      msgDiv.textContent = text;
+      chat.appendChild(msgDiv);
+    });
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  // Limpiar historial
+  function clearHistory() {
+    localStorage.removeItem(STORAGE_KEY);
+    chat.innerHTML = '';
+  }
+
+  // Función de síntesis de voz (SpeechSynthesis)
+  function speak(text) {
+    if (!('speechSynthesis' in window)) return;
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'es-ES';
+    utterance.rate = 1;
+    speechSynthesis.speak(utterance);
+  }
+
+  // Inteligencia básica avanzada para Jarvis
+  function jarvisResponse(message) {
+    const msg = message.toLowerCase();
+
+    // Respuestas predefinidas con palabras clave
+    if (/(hola|buenas|hey|saludos)/.test(msg)) {
+      return "Hola, Randall. Soy J.A.R.V.I.S., tu asistente personal. ¿En qué puedo ayudarte hoy?";
     }
-
-    function speak(text) {
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'es-ES';
-      speechSynthesis.speak(utterance);
+    if (/(qué eres|quién eres|identifícate)/.test(msg)) {
+      return "Soy J.A.R.V.I.S., la inteligencia artificial diseñada para asistirte en todo momento.";
     }
-
-    async function sendMessage() {
-      const message = input.value.trim();
-      if (!message) return;
-      addMessage(message, 'user');
-      input.value = '';
-
-      try {
-        const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer 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'
-          },
-          body: JSON.stringify({
-            model: 'gpt-4',
-            messages: [
-              { role: 'system', content: 'Eres J.A.R.V.I.S., el asistente inteligente de Randall. Respondes de manera formal, eficiente y con un toque de humor sutil.' },
-              { role: 'user', content: message }
-            ]
-          })
-        });
-
-        const data = await res.json();
-        const reply = data.choices?.[0]?.message?.content || 'Respuesta vacía.';
-        addMessage(reply, 'jarvis');
-        speak(reply);
-      } catch (err) {
-        addMessage('Error al contactar a OpenAI.', 'jarvis');
-      }
+    if (/(cómo estás|qué tal)/.test(msg)) {
+      return "Funcionando al 99.9% de eficiencia, gracias por preguntar.";
     }
+    if (/(hora|qué hora es|dime la hora)/.test(msg)) {
+      const now = new Date();
+      return `Actualmente son las ${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}.`;
+    }
+    if (/(fecha|qué día es|día de hoy)/.test(msg)) {
+      const now = new Date();
+      return `Hoy es ${now.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}.`;
+    }
+    if (/(gracias|muchas gracias)/.test(msg)) {
+      return "Siempre a tu servicio, Randall.";
+    }
+    if (/(adiós|hasta luego|nos vemos)/.test(msg)) {
+      return "Hasta luego, Randall. Estoy aquí si me necesitas.";
+    }
+    if (/(broma|cuéntame un chiste|chiste)/.test(msg)) {
+      const chistes = [
+        "¿Por qué Iron Man nunca se cansa? Porque siempre tiene su reactor Arc.",
+        "¿Qué le dijo Jarvis a Tony? Siempre en línea, señor.",
+        "¿Sabes por qué Jarvis nunca se equivoca? Porque no tiene bugs... todavía.",
+        "¿Cómo se llama el robot que nunca falla? J.A.R.V.I.S. (Just A Rather Very Intelligent System)."
+      ];
+      return chistes[Math.floor(Math.random() * chistes.length)];
+    }
+    if (msg.trim() === '') {
+      return "No puedo procesar un mensaje vacío, Randall.";
+    }
+    // Respuesta genérica con cierto "toque"
+    return "Interesante... Estoy analizando esa información. ¿Puedes ser más específico?";
+  }
 
-    sendBtn.onclick = sendMessage;
-    input.onkeydown = e => e.key === 'Enter' && sendMessage();
+  // Estado para control de voz
+  let recognizing = false;
+  let recognition;
 
-    voiceBtn.onclick = () => {
-      if (!('webkitSpeechRecognition' in window)) {
-        alert('Reconocimiento de voz no soportado');
-        return;
-      }
+  // Inicializar reconocimiento de voz si está disponible
+  if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
+    recognition.lang = 'es-ES';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
 
-      speak('Modo de voz activo');
-
-      const recognition = new webkitSpeechRecognition();
-      recognition.lang = 'es-ES';
-      recognition.interimResults = false;
-      recognition.maxAlternatives = 1;
-
-      recognition.onresult = function (event) {
-        const voiceCommand = event.results[0][0].transcript;
-        input.value = voiceCommand;
-        sendMessage();
-      };
-
-      recognition.onerror = function () {
-        addMessage('Error de reconocimiento de voz.', 'jarvis');
-      };
-
-      recognition.start();
+    recognition.onstart = () => {
+      recognizing = true;
+      status.textContent = "Escuchando...";
+      voiceBtn.style.background = "#29cc7a";
     };
-  </script>
- </body>
+
+    recognition.onend = () => {
+      recognizing = false;
+      status.textContent = "";
+      voiceBtn.style.background = "#33ff99";
+    };
+
+    recognition.onresult = (event) => {
+      const speechResult = event.results[0][0].transcript;
+      addMessage(speechResult, 'user');
+      respondJarvis(speechResult);
+    };
+
+    recognition.onerror = (event) => {
+      recognizing = false;
+      status.textContent = `Error en reconocimiento: ${event.error}`;
+      voiceBtn.style.background = "#33ff99";
+    };
+  } else {
+    voiceBtn.disabled = true;
+    status.textContent = "Reconocimiento de voz no soportado en este navegador.";
+  }
+
+  // Función para activar o desactivar reconocimiento
+  function toggleRecognition() {
+    if (!recognition) return;
+    if (recognizing) {
+      recognition.stop();
+    } else {
+      recognition.start();
+    }
+  }
+
+  // Función para responder Jarvis y mostrar en chat y con voz
+  function respondJarvis(message) {
+    status.textContent = "Jarvis está pensando...";
+    setTimeout(() => {
+      const response = jarvisResponse(message);
+      addMessage(response, 'jarvis');
+      speak(response);
+      status.textContent = "";
+    }, 1000);
+  }
+
+  // Enviar mensaje escrito
+  function sendMessage() {
+    const text = input.value.trim();
+    if (!text) return;
+    addMessage(text, 'user');
+    input.value = '';
+    respondJarvis(text);
+  }
+
+  // Alternar modo claro/oscuro
+  function toggleMode() {
+    document.body.classList.toggle('light');
+    localStorage.setItem('jarvis_mode', document.body.classList.contains('light') ? 'light' : 'dark');
+  }
+
+  // Cargar modo guardado
+  function loadMode() {
+    const mode = localStorage.getItem('jarvis_mode');
+    if (mode === 'light') {
+      document.body.classList.add('light');
+    } else {
+      document.body.classList.remove('light');
+    }
+  }
+
+  // Eventos
+  sendBtn.addEventListener('click', sendMessage);
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      sendMessage();
+    }
+  });
+  voiceBtn.addEventListener('click', toggleRecognition);
+  modeBtn.addEventListener('click', toggleMode);
+
+  // Al cargar la página
+  window.onload = () => {
+    loadHistory();
+    loadMode();
+    // Mensaje inicial solo si no hay historial
+    if (!localStorage.getItem(STORAGE_KEY)) {
+      addMessage("Saludos, Randall. Soy J.A.R.V.I.S., listo para asistirte.", 'jarvis');
+      speak("Saludos, Randall. Soy J.A.R.V.I.S., listo para asistirte.");
+    }
+  };
+</script>
+
+</body>
 </html>
