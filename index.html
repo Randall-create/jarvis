@@ -1,7 +1,8 @@
-<!DOCTYPE html><html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<!doctype html>
+<html lang="es">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>J.A.R.V.I.S. Web Assistant</title>
   <style>
     body {
@@ -55,14 +56,17 @@
       cursor: pointer;
     }
   </style>
-</head>
-<body>
+ </head>
+ <body>
   <h1>Sistema J.A.R.V.I.S.</h1>
-  <p class="status">Modo: <span id="mode">Texto</span></p>  <div class="input-container">
-    <input type="text" id="userInput" placeholder="Escriba su comando..." />
-    <button id="sendBtn">Enviar</button>
-    <button id="voiceBtn">🎤 Voz</button>
-  </div>  <div id="response">Esperando su orden, señor Randall...</div>  <script>
+  <p class="status">Modo: <span id="mode">Texto</span></p>
+  <div class="input-container">
+   <input type="text" id="userInput" placeholder="Escriba su comando..."> <button id="sendBtn">Enviar</button> <button id="voiceBtn">🎤 Voz</button>
+  </div>
+  <div id="response">
+   Esperando su orden, señor Randall...
+  </div>
+  <script>
     const input = document.getElementById('userInput');
     const sendBtn = document.getElementById('sendBtn');
     const voiceBtn = document.getElementById('voiceBtn');
@@ -91,7 +95,7 @@
             'Authorization': 'Bearer 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'
           },
           body: JSON.stringify({
-            model: 'gpt-4o',
+            model: 'gpt-4',
             messages: [
               { role: 'system', content: 'Eres J.A.R.V.I.S., el asistente inteligente de Randall. Respondes de manera formal, eficiente y con un toque de humor sutil.' },
               { role: 'user', content: message }
@@ -140,5 +144,6 @@
 
       recognition.start();
     };
-  </script></body>
+  </script>
+ </body>
 </html>
